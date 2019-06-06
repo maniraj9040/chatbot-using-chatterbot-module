@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Chat Bot</title>
+<meta charset="utf-8"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+    var ws = new WebSocket("ws://localhost:3000");
+    $(window).on('beforeunload', function(){
+       ws.close();
+    });
+
+    // ws.onerror = function(event) {
+    //     location.reload();
+    // }
+    ws.onmessage = function(event)  {
+        var message_received = event.data;
+        chat_add_message(message_received, false);
+    };
+
+    function chat_add_message(message, isUser) {
+      var person = isUser ? 'user' : '';
+
+        var html = '\
+        <div class="chat_line">\
+            <div class="chat_bubble'+person+'">\
+              <div class="chat_triangle'+person+'"></div>\
+               '+message+' \
+            </div>\
+        </div>\
+        ';
+        chat_add_html(html);
+    }
+    // Add HTML to the chat
+    function chat_add_html(html) {
+        $("#chat_log").append(html);
+        chat_scrolldown();
+    }
+
+    function chat_scrolldown() {
+        $("#chat_log").animate({ scrollTop: $("#chat_log")[0].scrollHeight }, 500);
+    }
+
+    $(function() {
+       $('#chat_input').on('keypress', function(event) {
+          if (event.which ===  13  && $(this).val() != "") {
+             var message = $(this).val();
+             $(this).val("");
+             chat_add_message(message, true);
+             ws.send(message);
+          }
+       });
+    });
+
+    $(document).ready(function(){
+   $("img").click(function(){
+        $("div").slideToggle();
+    });
+    });
+</script>
+<style>
+    * {
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+    }
+    body {
+        font-family: "Times New Roman", Times, serif;
+    }
+    #chat_container {
+         border: 1px solid black;
+         border-radius: 5px;
+         float : right;
+         float: bottom
+         overflow: hidden;
+         width : 350px;
+         margin: 0px 0px 0px 1000px;
+         z-index: 1;
+    }
+    #chat_log {
+
+        padding: 10px;
+        border-bottom: 1px solid black;
+        margin : 10px 10px 10px 10px;
+        overflow-y: scroll;
+        height: 350px;
+        font-size: 10px;
+        background-color : #FFFFF;
+    }
+    #chat_input_container {
+        padding: 10px;
+    }
+    #chat_input {
+        padding: 2px;
+        font-size: 18px;
+        width: 100%;
+    }
+    .chat_line {
+        overflow: hidden;
+
+        width: 100%;
+        margin: 2px 0 12px 0;
+    }
+
+    .img1{
+
+        float : right;
+        position: -webkit-sticky;
+        position: sticky;
+        cursor : pointer;
+        height : 60px;
+        border-radius : 50%;
+    }
+
+       .chat_triangle, .chat_triangle_user {
+        position: absolute;
+        top: 0;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        <!--left: -18px;-->
+        border-width: 0 18px 13px 0;
+        border-color: transparent #f2f2f2 transparent transparent;
+    }
+    .chat_triangle_user {
+        left: auto;
+        right: -18px;
+        border-width: 13px 18px 0 0;
+        border-color: #f2f2f2 transparent transparent transparent;
+    }
+    .chat_bubble, .chat_bubbleuser {
+        position: relative;
+        float: left;
+        background-color: #f2f2f2;
+        line-height: 17px;
+        padding: 5px 5px 5px 5px;
+        margin-left: 20px;
+        font-size: 17px;
+        border-radius : 3px;
+    }
+    .chat_bubbleuser {
+        float: right;
+        margin-left: 0px;
+        margin-right: 20px;
+        background-color: #f2b787;
+        color: black;
+    }
+
+
+
+
+</style>
+</head>
+
+<body>
+
+
+<img class = "img1" src="http://www.dreams.metroeve.com/wp-content/uploads/2017/03/dreams.metroeve_unnamed-1.png" alt="chat">
+
+<div id="chat_container">
+
+
+    <div id="chat_log" >
+
+
+    </div>
+    <div id="chat_input_container">
+        <div>
+            <input id="chat_input"  placeholder="How can i help you?"></div>
+
+<!-- <iframe
+    allow="microphone;"
+    width="350"
+    height="430"
+    src="https://console.dialogflow.com/api-client/demo/embedded/d245b32b-a8dd-4295-a6b9-66eee35053c1">
+</iframe>
+ -->
+</div>
+
+</body>
+</html>
